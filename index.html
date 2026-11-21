@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SBUI & İKY Ders Planlayıcı</title>
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --text: #162033;
+      --muted: #5c6b84;
+      --primary: #1f4e79;
+      --accent: #0f766e;
+      --border: #dce3ef;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 18px;
+    }
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+    .header {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .header h1 {
+      margin: 0 0 6px;
+      font-size: 1.35rem;
+      color: var(--primary);
+    }
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .days {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .day-btn {
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .day-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+      background: #e6f0fa;
+      color: var(--primary);
+    }
+    .badge.iky {
+      background: #e3f5f3;
+      color: var(--accent);
+    }
+    h2 {
+      margin: 0 0 8px;
+      font-size: 1.08rem;
+    }
+    p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+    textarea {
+      width: 100%;
+      min-height: 110px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      font-family: inherit;
+      font-size: 0.92rem;
+      resize: vertical;
+    }
+    .timer-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .time {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+      font-variant-numeric: tabular-nums;
+    }
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    button.action {
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button.action.secondary {
+      background: #e9eff7;
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>SBUI & İKY Haftalık Ders Planlayıcı</h1>
+      <p class="sub">Başlangıç: <strong>23 Kasım 2026 Pazartesi, 20:00</strong> • Günde 2 ders çalışma düzeni (Notların bu cihazda otomatik kaydedilir)</p>
+    </div>
+
+    <div class="days" id="dayTabs"></div>
+
+    <div class="card" style="margin-bottom: 16px;">
+      <div class="timer-box">
+        <div>
+          <div style="font-size:0.85rem;color:var(--muted);font-weight:600;">ÇALIŞMA ZAMANLAYICISI (40 DK)</div>
+          <div class="time" id="timerDisplay">40:00</div>
+        </div>
+        <div class="controls">
+          <button class="action" id="startBtn">Başlat / Duraklat</button>
+          <button class="action secondary" id="resetBtn">Sıfırla</button>
+          <button class="action secondary" id="breakBtn">10 dk Mola</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid" id="lessonsGrid"></div>
+  </div>
+
+  <script>
+    const planData = [
+      {
+        day: "Pazartesi (23 Kas)",
+        time: "20:00 – 21:30",
+        lessons: [
+          { tag: "SBUI", name: "Türk Siyasal Hayatı", focus: "Gündüz ders notları ve temel kavram/tarih özeti" },
+          { tag: "SBUI", name: "Ortadoğu Siyaseti", focus: "Bölgesel aktörler, gündem ve temel not düzeni" }
+        ]
+      },
+      {
+        day: "Salı",
+        time: "19:30 – 21:00",
+        lessons: [
+          { tag: "SBUI", name: "Theory of International Relations", focus: "Kuram okumaları ve İngilizce kavram özeti" },
+          { tag: "İKY", name: "İşletme Yönetimi", focus: "Temel yönetim işlevleri ve ünite notları" }
+        ]
+      },
+      {
+        day: "Çarşamba",
+        time: "19:30 – 21:00",
+        lessons: [
+          { tag: "İKY", name: "Genel İktisat", focus: "Temel iktisat kavramları ve ünite okuması" },
+          { tag: "SBUI", name: "Uluslararası İlişkiler Tarihi", focus: "Tarihsel bağlam, dönemler ve okuma özeti" }
+        ]
+      },
+      {
+        day: "Perşembe",
+        time: "19:30 – 21:00",
+        lessons: [
+          { tag: "SBUI", name: "Uluslararası Hukukta Güncel Konu ve Tartışmalar", focus: "Hukuki çerçeve, güncel vakalar ve ders notu tekrarı" },
+          { tag: "İKY", name: "Çalışma Sosyolojisi", focus: "Çalışma hayatı kavramları ve ünite okuması" }
+        ]
+      },
+      {
+        day: "Cuma",
+        time: "19:30 – 21:00",
+        lessons: [
+          { tag: "SBUI", name: "Uluslararası Güvenlik Teorileri ve Analizi", focus: "Güvenlik yaklaşımları ve kuram karşılaştırması" },
+          { tag: "İKY", name: "Bilimsel Araştırmalar Tekniği", focus: "Araştırma yöntemleri, desenler ve özet notlar" }
+        ]
+      },
+      {
+        day: "Cumartesi",
+        time: "11:00 – 13:00",
+        lessons: [
+          { tag: "SBUI", name: "Haftalık Kuram & Okuma Tekrarı", focus: "Eksik kalan okumaların ve notların tamamlanması" },
+          { tag: "İKY", name: "Haftalık Ünite & Kavram Tekrarı", focus: "Haftanın üniteleri ve kavram tekrarları" }
+        ]
+      },
+      {
+        day: "Pazar",
+        time: "11:00 – 13:00",
+        lessons: [
+          { tag: "İKY", name: "Soru Çözümü & Deneme", focus: "Ünite sonu ve çıkmış/deneme soru pratiği" },
+          { tag: "SBUI", name: "Vize/Final Soru & Not Toparlama", focus: "Haftalık toparlama ve yeni haftaya hazırlık" }
+        ]
+      }
+    ];
+
+    let activeDayIndex = 0;
+    const dayTabsEl = document.getElementById("dayTabs");
+    const lessonsGridEl = document.getElementById("lessonsGrid");
+
+    function getNoteKey(dayIdx, lessonIdx) {
+      return `sbui_iky_note_${dayIdx}_${lessonIdx}`;
+    }
+
+    function renderTabs() {
+      dayTabsEl.innerHTML = "";
+      planData.forEach((item, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "day-btn" + (idx === activeDayIndex ? " active" : "");
+        btn.textContent = item.day;
+        btn.onclick = () => {
+          activeDayIndex = idx;
+          renderTabs();
+          renderLessons();
+        };
+        dayTabsEl.appendChild(btn);
+      });
+    }
+
+    function renderLessons() {
+      const dayObj = planData[activeDayIndex];
+      lessonsGridEl.innerHTML = "";
+      dayObj.lessons.forEach((lesson, lIdx) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        const isIky = lesson.tag === "İKY";
+        const savedNote = localStorage.getItem(getNoteKey(activeDayIndex, lIdx)) || "";
+
+        card.innerHTML = `
+          <span class="badge ${isIky ? "iky" : ""}">${lesson.tag} • ${dayObj.time}</span>
+          <h2>${lesson.name}</h2>
+          <p>${lesson.focus}</p>
+          <textarea placeholder="${lesson.name} için not veya yapılacak ekle..."></textarea>
+        `;
+
+        const ta = card.querySelector("textarea");
+        ta.value = savedNote;
+        ta.addEventListener("input", () => {
+          localStorage.setItem(getNoteKey(activeDayIndex, lIdx), ta.value);
+        });
+
+        lessonsGridEl.appendChild(card);
+      });
+    }
+
+    let secondsLeft = 40 * 60;
+    let intervalId = null;
+    const timerDisplay = document.getElementById("timerDisplay");
+
+    function updateTimerDisplay() {
+      const m = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
+      const s = String(secondsLeft % 60).padStart(2, "0");
+      timerDisplay.textContent = `${m}:${s}`;
+    }
+
+    document.getElementById("startBtn").onclick = () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+        return;
+      }
+      intervalId = setInterval(() => {
+        if (secondsLeft > 0) {
+          secondsLeft--;
+          updateTimerDisplay();
+        } else {
+          clearInterval(intervalId);
+          intervalId = null;
+          alert("Çalışma süresi tamamlandı!");
+        }
+      }, 1000);
+    };
+
+    document.getElementById("resetBtn").onclick = () => {
+      clearInterval(intervalId);
+      intervalId = null;
+      secondsLeft = 40 * 60;
+      updateTimerDisplay();
+    };
+
+    document.getElementById("breakBtn").onclick = () => {
+      clearInterval(intervalId);
+      intervalId = null;
+      secondsLeft = 10 * 60;
+      updateTimerDisplay();
+    };
+
+    renderTabs();
+    renderLessons();
+    updateTimerDisplay();
+  </script>
+</body>
+</html>
